@@ -5,134 +5,517 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aimar Sechan Adhitya</title>
     <meta name="description" content="Security Researcher, Mobile Anti-Cheat Developer, Android Security Enthusiast" />
-
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        bg: "#0b0f14",
-                        card: "#121821",
-                        border: "#1f2633",
-                        accent: "#5da9ff"
-                    }
-                }
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        /* Terminal-style hero */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: 
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .terminal {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(10, 10, 10, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .terminal-header {
+            background: #00ff00;
+            padding: 8px 16px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #000;
+        }
+        
+        .terminal-body {
+            padding: 30px;
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        
+        .prompt {
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+        
+		.cursor {
+			display: inline-block;
+			width: 0.6ch;          /* match character width */
+			height: 1em;           /* match font height */
+			background: #00ff00;
+			vertical-align: baseline;
+			position: relative;
+			top: 0.2em;            /* fine-tune baseline alignment */
+			animation: blink 1s infinite;
+		}
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        .output {
+            color: #aaa;
+            margin: 5px 0 5px 20px;
+        }
+        
+        .highlight {
+            color: #00ff00;
+            font-weight: 600;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ff00;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+        
+        /* Structured content layout */
+        .content {
+            min-height: 100vh;
+            padding: 80px 20px;
+            background: #000;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            margin-bottom: 80px;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .section-number {
+            font-family: 'Fira Code', monospace;
+            font-size: 18px;
+            color: #00ff00;
+            font-weight: 600;
+        }
+        
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, #00ff00, transparent);
+        }
+        
+        /* About */
+        .about-content {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 1px solid #333;
+            border-left: 3px solid #00ff00;
+            padding: 40px;
+            border-radius: 8px;
+        }
+        
+        .about-content p {
+            font-size: 18px;
+            color: #999;
+            line-height: 1.8;
+        }
+        
+        /* Projects Grid */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .project {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: #00ff00;
+            transform: scaleY(0);
+            transition: transform 0.3s;
+        }
+        
+        .project:hover::before {
+            transform: scaleY(1);
+        }
+        
+        .project:hover {
+            border-color: #00ff00;
+            transform: translateX(10px);
+        }
+        
+        .project-number {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: #00ff00;
+            margin-bottom: 15px;
+        }
+        
+        .project h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .project-link {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .project:hover .project-link {
+            color: #00ff00;
+        }
+        
+        /* Skills Grid */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        
+        .skill-item {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .skill-item:hover {
+            border-color: #00ff00;
+            transform: translateY(-5px);
+        }
+        
+        .skill-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .skill-item h4 {
+            font-size: 16px;
+            color: #fff;
+        }
+        
+        /* Contact Grid */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .contact {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 30px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s;
+        }
+        
+        .contact:hover {
+            border-color: #00ff00;
+            transform: translateX(10px);
+        }
+        
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        
+        .contact-text h4 {
+            font-size: 18px;
+            margin-bottom: 5px;
+            color: #fff;
+        }
+        
+        .contact-text p {
+            font-size: 14px;
+            color: #666;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 100px;
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid #333;
+        }
+        
+        .footer p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .skills-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
             }
         }
-    </script>
+        
+        @media (max-width: 640px) {
+            .section-title {
+                font-size: 28px;
+            }
+            
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .terminal-body {
+                font-size: 14px;
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-bg text-gray-200 antialiased">
-    <main class="max-w-5xl mx-auto px-6 py-20">
-
-        <!-- Header -->
-        <header class="mb-20">
-            <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">
-                Aimar Sechan Adhitya
-            </h1>
-            <p class="mt-4 text-lg text-gray-400 max-w-3xl">
-                Security Researcher · Anti-Cheat Developer (Mobile) · Android Security Enthusiast
-            </p>
-        </header>
-
-        <!-- About -->
-        <section class="mb-16">
-            <h2 class="text-2xl font-semibold mb-6">About</h2>
-            <p class="text-gray-300 max-w-3xl leading-relaxed">
-                I work in Android and mobile security research with a strong focus on
-                reverse engineering, native protections, and mobile anti-cheat systems.
-                My interests include runtime detection, tamper resistance, and analyzing
-                real-world attack techniques against production applications.
-            </p>
-        </section>
-
-        <!-- Projects -->
-        <section class="mb-16">
-            <h2 class="text-2xl font-semibold mb-6">Key Projects</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <a href="https://github.com/aimardcr/APKKiller" target="_blank"
-                   class="block bg-card border border-border rounded-xl p-6
-                          hover:border-accent transition">
-                    <h3 class="text-lg font-medium mb-2">APK Killer</h3>
-                    <p class="text-sm text-gray-400 break-all">
-                        github.com/aimardcr/APKKiller
-                    </p>
-                </a>
-
-                <a href="https://github.com/aimardcr/AndroidNativeGuard" target="_blank"
-                   class="block bg-card border border-border rounded-xl p-6
-                          hover:border-accent transition">
-                    <h3 class="text-lg font-medium mb-2">Android Native Guard</h3>
-                    <p class="text-sm text-gray-400 break-all">
-                        github.com/aimardcr/AndroidNativeGuard
-                    </p>
-                </a>
-
-                <a href="https://github.com/aimardcr/reAVS" target="_blank"
-                   class="block bg-card border border-border rounded-xl p-6
-                          hover:border-accent transition">
-                    <h3 class="text-lg font-medium mb-2">reAVS</h3>
-                    <p class="text-sm text-gray-400 break-all">
-                        github.com/aimardcr/reAVS
-                    </p>
-                </a>
+<body>
+    <!-- Hero Terminal -->
+    <section class="hero">
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-btn"></div>
+                <div class="terminal-btn"></div>
+                <div class="terminal-btn"></div>
             </div>
-        </section>
-
-        <!-- Focus -->
-        <section class="mb-16">
-            <h2 class="text-2xl font-semibold mb-6">Technical Focus</h2>
-
-            <div class="flex flex-wrap gap-3">
-                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
-                    Android Security
-                </span>
-                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
-                    Mobile Anti-Cheat
-                </span>
-                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
-                    Reverse Engineering
-                </span>
-                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
-                    ARM / ARM64
-                </span>
-                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
-                    Native Protections
-                </span>
-                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
-                    Runtime Detection
-                </span>
+            <div class="terminal-body">
+                <div class="prompt">$ whoami</div>
+                <div class="output">Aimar Sechan Adhitya</div>
+                
+                <div class="prompt" style="margin-top: 20px;">$ cat role.txt</div>
+                <div class="output">→ Security Researcher</div>
+                <div class="output">→ Mobile Anti-Cheat Developer</div>
+                <div class="output">→ Android Security Enthusiast</div>
+                
+                <div class="prompt" style="margin-top: 20px;">$ ls -la expertise/</div>
+                <div class="output">drwxr-xr-x  6 aimar  staff   192 Jan 14 2026 reverse_engineering</div>
+                <div class="output">drwxr-xr-x  4 aimar  staff   128 Jan 14 2026 native_protections</div>
+                <div class="output">drwxr-xr-x  5 aimar  staff   160 Jan 14 2026 runtime_detection</div>
+                
+                <div class="prompt" style="margin-top: 20px;">$ <span class="cursor"></span></div>
             </div>
-        </section>
+        </div>
+        <div class="scroll-indicator">Scroll to explore ↓</div>
+    </section>
 
-        <!-- Contact -->
-        <section>
-            <h2 class="text-2xl font-semibold mb-6">Contact</h2>
-            <div class="flex flex-wrap gap-6 text-gray-300">
-                <a href="https://www.facebook.com/aimardcr/" target="_blank"
-                   class="hover:text-accent transition">
-                    Facebook
-                </a>
-                <a href="https://www.linkedin.com/in/aimardcr/" target="_blank"
-                   class="hover:text-accent transition">
-                    LinkedIn
-                </a>
-                <a href="mailto:aimar.adhitya@gmail.com"
-                   class="hover:text-accent transition">
-                    aimar.adhitya@gmail.com
-                </a>
+    <!-- Content Sections -->
+    <section class="content">
+        <div class="container">
+            <!-- About -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-number">01</span>
+                    <h2 class="section-title">About</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="about-content">
+                    <p>
+                        I specialize in Android and mobile security research, focusing on reverse engineering, 
+                        native protections, and mobile anti-cheat systems. My work involves runtime detection, 
+                        tamper resistance, and analyzing real-world attack techniques against production applications.
+                    </p>
+                </div>
             </div>
-        </section>
 
-        <!-- Footer -->
-        <footer class="mt-24 text-center text-sm text-gray-500">
-            © 2026 Aimar Sechan Adhitya
-        </footer>
+            <!-- Projects -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-number">02</span>
+                    <h2 class="section-title">Projects</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="projects-grid">
+                    <a href="https://github.com/aimardcr/APKKiller" target="_blank" class="project">
+                        <div class="project-number">[01]</div>
+                        <h3>APK Killer</h3>
+                        <span class="project-link">github.com/aimardcr/APKKiller</span>
+                    </a>
 
-    </main>
+                    <a href="https://github.com/aimardcr/AndroidNativeGuard" target="_blank" class="project">
+                        <div class="project-number">[02]</div>
+                        <h3>Android Native Guard</h3>
+                        <span class="project-link">github.com/aimardcr/AndroidNativeGuard</span>
+                    </a>
+
+                    <a href="https://github.com/aimardcr/reAVS" target="_blank" class="project">
+                        <div class="project-number">[03]</div>
+                        <h3>reAVS</h3>
+                        <span class="project-link">github.com/aimardcr/reAVS</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Skills -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-number">03</span>
+                    <h2 class="section-title">Expertise</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <div class="skill-icon">🔐</div>
+                        <h4>Android Security</h4>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">🛡️</div>
+                        <h4>Mobile Anti-Cheat</h4>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">🔧</div>
+                        <h4>Reverse Engineering</h4>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">💻</div>
+                        <h4>ARM / ARM64</h4>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">⚡</div>
+                        <h4>Native Protections</h4>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">🎯</div>
+                        <h4>Runtime Detection</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-number">04</span>
+                    <h2 class="section-title">Contact</h2>
+                    <div class="section-line"></div>
+                </div>
+                <div class="contact-grid">
+                    <a href="https://www.linkedin.com/in/aimardcr/" target="_blank" class="contact">
+                        <div class="contact-icon">💼</div>
+                        <div class="contact-text">
+                            <h4>LinkedIn</h4>
+                            <p>/in/aimardcr</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.facebook.com/aimardcr/" target="_blank" class="contact">
+                        <div class="contact-icon">📱</div>
+                        <div class="contact-text">
+                            <h4>Facebook</h4>
+                            <p>/aimardcr</p>
+                        </div>
+                    </a>
+
+                    <a href="mailto:aimar.adhitya@gmail.com" class="contact">
+                        <div class="contact-icon">✉️</div>
+                        <div class="contact-text">
+                            <h4>Email</h4>
+                            <p>aimar.adhitya@gmail.com</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>© 2026 Aimar Sechan Adhitya — Crafted with precision</p>
+            </div>
+        </div>
+    </section>
 </body>
 </html>
