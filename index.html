@@ -6,233 +6,133 @@
     <title>Aimar Sechan Adhitya</title>
     <meta name="description" content="Security Researcher, Mobile Anti-Cheat Developer, Android Security Enthusiast" />
 
-    <style>
-        :root {
-            --bg: #0b0f14;
-            --fg: #e6edf3;
-            --muted: #9da7b3;
-            --accent: #5da9ff;
-            --accent-soft: rgba(93, 169, 255, 0.15);
-            --card: #121821;
-            --border: #1f2633;
-        }
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-                         Roboto, Ubuntu, sans-serif;
-            background: radial-gradient(1200px 600px at 10% -10%, #111a2b 0%, var(--bg) 40%);
-            color: var(--fg);
-            line-height: 1.65;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        .container {
-            max-width: 980px;
-            margin: 0 auto;
-            padding: 56px 24px 72px;
-        }
-
-        /* Header */
-        header {
-            margin-bottom: 64px;
-        }
-
-        h1 {
-            font-size: 2.6rem;
-            margin: 0 0 12px 0;
-            letter-spacing: -0.02em;
-        }
-
-        .role {
-            font-size: 1.15rem;
-            color: var(--muted);
-            max-width: 720px;
-        }
-
-        /* Section */
-        section {
-            margin-bottom: 56px;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            margin-bottom: 24px;
-            position: relative;
-        }
-
-        h2::after {
-            content: "";
-            position: absolute;
-            left: 0;
-            bottom: -8px;
-            width: 48px;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent), transparent);
-        }
-
-        /* Cards */
-        .card {
-            background: linear-gradient(180deg, var(--card), #0f141c);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            transition: transform 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent);
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-        }
-
-        .project-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .project-link {
-            font-size: 0.9rem;
-            color: var(--muted);
-            word-break: break-word;
-        }
-
-        /* About */
-        .about {
-            max-width: 780px;
-            font-size: 1.05rem;
-        }
-
-        /* Skills */
-        .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .tag {
-            padding: 6px 12px;
-            border-radius: 999px;
-            background: var(--accent-soft);
-            color: var(--fg);
-            font-size: 0.9rem;
-            border: 1px solid var(--border);
-        }
-
-        /* Contact */
-        .contact a {
-            display: inline-block;
-            margin-right: 18px;
-            font-weight: 500;
-        }
-
-        footer {
-            margin-top: 80px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--muted);
-        }
-
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 2.1rem;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bg: "#0b0f14",
+                        card: "#121821",
+                        border: "#1f2633",
+                        accent: "#5da9ff"
+                    }
+                }
             }
         }
-    </style>
+    </script>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1>Aimar Sechan Adhitya</h1>
-            <div class="role">
-                Security Researcher | Anti-Cheat Developer (Mobile) | Android Security Enthusiast
-            </div>
+
+<body class="bg-bg text-gray-200 antialiased">
+    <main class="max-w-5xl mx-auto px-6 py-20">
+
+        <!-- Header -->
+        <header class="mb-20">
+            <h1 class="text-4xl md:text-5xl font-semibold tracking-tight">
+                Aimar Sechan Adhitya
+            </h1>
+            <p class="mt-4 text-lg text-gray-400 max-w-3xl">
+                Security Researcher · Anti-Cheat Developer (Mobile) · Android Security Enthusiast
+            </p>
         </header>
 
-        <section>
-            <h2>About</h2>
-            <p class="about">
-                I specialize in Android and mobile security research with a focus on
-                reverse engineering, native protections, and anti-cheat systems.
-                My work involves analyzing adversarial behavior and designing
-                resilient defense mechanisms for production mobile applications.
+        <!-- About -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold mb-6">About</h2>
+            <p class="text-gray-300 max-w-3xl leading-relaxed">
+                I work in Android and mobile security research with a strong focus on
+                reverse engineering, native protections, and mobile anti-cheat systems.
+                My interests include runtime detection, tamper resistance, and analyzing
+                real-world attack techniques against production applications.
             </p>
         </section>
 
-        <section>
-            <h2>Key Projects</h2>
-            <div class="grid">
-                <div class="card">
-                    <div class="project-title">APK Killer</div>
-                    <div class="project-link">
-                        <a href="https://github.com/aimardcr/APKKiller" target="_blank">
-                            github.com/aimardcr/APKKiller
-                        </a>
-                    </div>
-                </div>
+        <!-- Projects -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold mb-6">Key Projects</h2>
 
-                <div class="card">
-                    <div class="project-title">Android Native Guard</div>
-                    <div class="project-link">
-                        <a href="https://github.com/aimardcr/AndroidNativeGuard" target="_blank">
-                            github.com/aimardcr/AndroidNativeGuard
-                        </a>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <a href="https://github.com/aimardcr/APKKiller" target="_blank"
+                   class="block bg-card border border-border rounded-xl p-6
+                          hover:border-accent transition">
+                    <h3 class="text-lg font-medium mb-2">APK Killer</h3>
+                    <p class="text-sm text-gray-400 break-all">
+                        github.com/aimardcr/APKKiller
+                    </p>
+                </a>
 
-                <div class="card">
-                    <div class="project-title">reAVS</div>
-                    <div class="project-link">
-                        <a href="https://github.com/aimardcr/reAVS" target="_blank">
-                            github.com/aimardcr/reAVS
-                        </a>
-                    </div>
-                </div>
+                <a href="https://github.com/aimardcr/AndroidNativeGuard" target="_blank"
+                   class="block bg-card border border-border rounded-xl p-6
+                          hover:border-accent transition">
+                    <h3 class="text-lg font-medium mb-2">Android Native Guard</h3>
+                    <p class="text-sm text-gray-400 break-all">
+                        github.com/aimardcr/AndroidNativeGuard
+                    </p>
+                </a>
+
+                <a href="https://github.com/aimardcr/reAVS" target="_blank"
+                   class="block bg-card border border-border rounded-xl p-6
+                          hover:border-accent transition">
+                    <h3 class="text-lg font-medium mb-2">reAVS</h3>
+                    <p class="text-sm text-gray-400 break-all">
+                        github.com/aimardcr/reAVS
+                    </p>
+                </a>
             </div>
         </section>
 
-        <section>
-            <h2>Technical Focus</h2>
-            <div class="tags">
-                <span class="tag">Android Security</span>
-                <span class="tag">Mobile Anti-Cheat</span>
-                <span class="tag">Reverse Engineering</span>
-                <span class="tag">ARM / ARM64</span>
-                <span class="tag">Native Protections</span>
-                <span class="tag">Runtime Detection</span>
+        <!-- Focus -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-semibold mb-6">Technical Focus</h2>
+
+            <div class="flex flex-wrap gap-3">
+                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
+                    Android Security
+                </span>
+                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
+                    Mobile Anti-Cheat
+                </span>
+                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
+                    Reverse Engineering
+                </span>
+                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
+                    ARM / ARM64
+                </span>
+                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
+                    Native Protections
+                </span>
+                <span class="px-4 py-1.5 rounded-full bg-card border border-border text-sm">
+                    Runtime Detection
+                </span>
             </div>
         </section>
 
+        <!-- Contact -->
         <section>
-            <h2>Contact</h2>
-            <div class="contact">
-                <a href="https://www.facebook.com/aimardcr/" target="_blank">Facebook</a>
-                <a href="https://www.linkedin.com/in/aimardcr/" target="_blank">LinkedIn</a>
-                <a href="mailto:aimar.adhitya@gmail.com">Email</a>
+            <h2 class="text-2xl font-semibold mb-6">Contact</h2>
+            <div class="flex flex-wrap gap-6 text-gray-300">
+                <a href="https://www.facebook.com/aimardcr/" target="_blank"
+                   class="hover:text-accent transition">
+                    Facebook
+                </a>
+                <a href="https://www.linkedin.com/in/aimardcr/" target="_blank"
+                   class="hover:text-accent transition">
+                    LinkedIn
+                </a>
+                <a href="mailto:aimar.adhitya@gmail.com"
+                   class="hover:text-accent transition">
+                    aimar.adhitya@gmail.com
+                </a>
             </div>
         </section>
 
-        <footer>
+        <!-- Footer -->
+        <footer class="mt-24 text-center text-sm text-gray-500">
             © 2026 Aimar Sechan Adhitya
         </footer>
-    </div>
+
+    </main>
 </body>
 </html>
