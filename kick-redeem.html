@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kick Redeem Overlay</title>
+    <style>
+    :root {
+        --bg: rgba(20, 20, 20, 0.85);
+        --text: #fff;
+        --muted: rgba(255, 255, 255, 0.75);
+        --accent: #ffd899;
+
+        /* 🔥 MAIN SIZE CONTROL */
+        --alert-scale: 1.4;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        overflow: hidden;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* Fullscreen stage */
+    #stage {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px;
+        box-sizing: border-box;
+        pointer-events: none;
+    }
+
+    /* Redeem card */
+    .redeem {
+        /* HARD CLAMP: card can NEVER exceed this */
+        width: min(800px, 90vw);
+        max-width: 90vw;
+        min-width: 0;              /* IMPORTANT: allow shrinking */
+
+        color: var(--text);
+        background: var(--bg);
+        border: 3px solid var(--accent);
+        border-radius: 20px;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+        padding: 24px 26px;
+        box-sizing: border-box;
+
+        /* prevents inner stuff from “pushing” layout */
+        overflow: hidden;
+
+        opacity: 0;
+        transform: scale(calc(0.92 * var(--alert-scale)));
+    }
+
+
+    .redeem.show {
+        opacity: 1;
+        transform: scale(var(--alert-scale));
+        transition:
+        opacity 260ms ease,
+        transform 260ms cubic-bezier(.2,.8,.2,1);
+    }
+
+    .redeem.hide {
+        opacity: 0;
+        transform: scale(calc(0.95 * var(--alert-scale)));
+        transition:
+        opacity 200ms ease,
+        transform 200ms ease;
+    }
+
+    .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 14px;
+
+        min-width: 0; /* IMPORTANT */
+    }
+
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 16px;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+
+        flex: 0 1 auto;
+        min-width: 0;
+    }
+
+    .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 5px rgba(255, 216, 153, 0.25);
+    }
+
+    .user {
+        font-weight: 800;
+        font-size: 18px;
+        color: var(--text);
+
+        flex: 1 1 auto;   /* allow shrink */
+        min-width: 0;     /* IMPORTANT in flex rows */
+        text-align: right;
+
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .title {
+        font-size: 28px;
+        font-weight: 900;
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .input {
+        margin-top: 12px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: rgba(255,255,255,0.1);
+        color: var(--text);
+        font-size: 18px;
+        line-height: 1.4;
+
+        width: 100%;
+        box-sizing: border-box;
+
+        white-space: pre-wrap;
+
+        /* THE IMPORTANT PART */
+        overflow-wrap: anywhere;
+        word-break: break-word;
+
+        max-width: 100%;
+    }
+
+    .meta {
+        margin-top: 12px;
+        font-size: 13px;
+        color: var(--muted);
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    #status {
+        position: absolute;
+        top: 14px;
+        left: 14px;
+        font-size: 12px;
+        color: rgba(255,255,255,0.6);
+        background: rgba(0,0,0,0.35);
+        border-radius: 10px;
+        padding: 6px 10px;
+        pointer-events: none;
+    }
+
+    /* Test button */
+    #test-controls {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        display: flex;
+        gap: 10px;
+        pointer-events: auto;
+    }
+
+    #testBtn {
+        appearance: none;
+        border: 0;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+        color: #111;
+        background: var(--accent);
+        box-shadow: 0 10px 22px rgba(0,0,0,0.35);
+    }
+
+    #testBtn:active {
+        transform: translateY(1px);
+    }
+
+    .hidden {
+        display: none !important;
+    }
+    </style>
+  </head>
+
+  <body>
+    <div id="stage">
+      <div id="status">Loading…</div>
+
+      <!-- Test controls -->
+      <div id="test-controls" class="hidden">
+        <button id="testBtn" type="button">Test Redeem</button>
+      </div>
+
+      <!-- Redeems will be injected here -->
+    </div>
+
+    <script>
+      class URLParams {
+        constructor() {
+          this.urlParams = new URLSearchParams(window.location.search);
+        }
+        getParam(param) {
+          return this.urlParams.get(param);
+        }
+      }
+
+      class RedeemOverlay {
+        constructor({ user, durationMs, queue, debug }) {
+          this.user = user;
+          this.durationMs = durationMs;
+          this.queueEnabled = queue;
+          this.debug = debug;
+
+          this.queue = [];
+          this.showing = false;
+
+          this.chatroomId = null;
+          this.channelId = null;
+
+          this.ws = null;
+          this.reconnectAttempts = 0;
+          this.maxReconnectDelay = 30000;
+          this.pingInterval = null;
+
+          this.statusEl = document.getElementById("status");
+          this.stageEl = document.getElementById("stage");
+        }
+
+        setStatus(text) {
+          this.statusEl.textContent = text;
+          if (!this.debug) {
+            if (text.toLowerCase().includes("connected")) {
+              setTimeout(() => (this.statusEl.style.display = "none"), 1200);
+            }
+          }
+        }
+
+        async getUserInfo(userToFetch) {
+          const res = await fetch(
+            `https://kick.com/api/v2/channels/${encodeURIComponent(userToFetch)}`
+          );
+          if (!res.ok) throw new Error("Kick API error " + res.status);
+          return res.json();
+        }
+
+        start() {
+          this.setStatus("Fetching channel…");
+          this.getUserInfo(this.user)
+            .then((userData) => {
+              this.chatroomId = userData?.chatroom?.id;
+              this.channelId = userData?.chatroom?.channel_id;
+
+              if (!this.chatroomId) throw new Error("No chatroom id found.");
+
+              this.setStatus("Connecting…");
+              this.connectWebSocket();
+            })
+            .catch((err) => {
+              console.error(err);
+              this.setStatus("Retrying…");
+              setTimeout(() => this.start(), 1000);
+            });
+        }
+
+        connectWebSocket() {
+          const connect = () => {
+            const ws = new WebSocket(
+              "wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0-rc2&flash=false"
+            );
+            this.ws = ws;
+
+            ws.onerror = (e) => console.error("WebSocket error:", e);
+
+            ws.onclose = () => {
+              this.setStatus("Disconnected, reconnecting…");
+              if (this.pingInterval) {
+                clearInterval(this.pingInterval);
+                this.pingInterval = null;
+              }
+              const delay = Math.min(
+                1000 * Math.pow(2, this.reconnectAttempts),
+                this.maxReconnectDelay
+              );
+              this.reconnectAttempts++;
+              setTimeout(connect, delay);
+            };
+
+            ws.onopen = () => {
+              this.reconnectAttempts = 0;
+              this.setStatus("Connected");
+
+              this.subscribe(ws, `chatrooms.${this.chatroomId}`);
+              this.subscribe(ws, `chatrooms.${this.chatroomId}.v2`);
+              this.subscribe(ws, `chatroom_${this.chatroomId}`);
+
+              if (this.channelId) this.subscribe(ws, `channel.${this.channelId}`);
+
+              this.pingInterval = setInterval(() => {
+                ws.send(JSON.stringify({ event: "pusher:ping", data: {} }));
+              }, 60000);
+            };
+
+            ws.onmessage = (event) => this.parseMessage(event.data);
+          };
+
+          connect();
+        }
+
+        subscribe(ws, channelName) {
+          ws.send(
+            JSON.stringify({
+              event: "pusher:subscribe",
+              data: { auth: null, channel: channelName },
+            })
+          );
+          if (this.debug) console.log("Subscribed:", channelName);
+        }
+
+        parseMessage(raw) {
+          const msg = JSON.parse(raw);
+
+          if (typeof msg.event === "string" && msg.event.startsWith("pusher")) return;
+
+          let data;
+          try {
+            data = JSON.parse(
+              String(msg.data)
+                .replace(/\\u00a0/g, " ")
+                .replace(/\\n/g, " ")
+                .replace(/\\t/g, " ")
+                .replace(/\\r/g, " ")
+                .replace(/\\f/g, " ")
+                .replace(/\\b/g, " ")
+                .replace(/\\v/g, " ")
+                .replace(/\\\\/g, "\\")
+            );
+          } catch (e) {
+            if (this.debug) console.warn("Could not parse msg.data:", msg.data);
+            return;
+          }
+
+          if (this.debug) console.log("EVENT:", msg.event, data);
+
+          if (msg.event === "RewardRedeemedEvent") {
+            this.onRedeem(data);
+          }
+        }
+
+        onRedeem(payload) {
+          const item = {
+            title: payload.reward_title ?? "Redeem",
+            username: payload.username ?? "unknown",
+            input: payload.user_input ?? "",
+            color: payload.reward_background_color ?? "#FFD899",
+            ts: Date.now(),
+          };
+
+          if (!this.queueEnabled) {
+            this.showRedeem(item);
+            return;
+          }
+
+          this.queue.push(item);
+          this.drainQueue();
+        }
+
+        drainQueue() {
+          if (this.showing) return;
+          const next = this.queue.shift();
+          if (!next) return;
+          this.showRedeem(next, () => this.drainQueue());
+        }
+
+        showRedeem(item, done) {
+          this.showing = true;
+
+          const existing = this.stageEl.querySelector(".redeem");
+          if (existing && !this.queueEnabled) existing.remove();
+
+          const card = document.createElement("div");
+          card.className = "redeem";
+          card.style.setProperty("--accent", item.color);
+
+          const safeTitle = this.escapeHTML(item.title);
+          const safeUser = this.escapeHTML(item.username);
+          const safeInput = this.escapeHTML(item.input);
+
+          card.innerHTML = `
+            <div class="top">
+              <div class="badge"><span class="dot"></span> Redeem</div>
+              <div class="user">${safeUser}</div>
+            </div>
+            <p class="title">${safeTitle}</p>
+            ${safeInput ? `<div class="input">${safeInput}</div>` : ""}
+            <div class="meta">
+              <span>Kick Rewards</span>
+              <span>${new Date(item.ts).toLocaleTimeString()}</span>
+            </div>
+          `;
+
+          this.stageEl.appendChild(card);
+
+          requestAnimationFrame(() => card.classList.add("show"));
+
+          setTimeout(() => {
+            card.classList.remove("show");
+            card.classList.add("hide");
+            setTimeout(() => {
+              card.remove();
+              this.showing = false;
+              if (typeof done === "function") done();
+            }, 230);
+          }, this.durationMs);
+        }
+
+        escapeHTML(str) {
+          return String(str)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+        }
+      }
+
+      // ---- Boot ----
+      const urlParams = new URLParams();
+      const user = urlParams.getParam("user");
+
+      const durationSec = Number(urlParams.getParam("duration") ?? "6");
+      const queue = (urlParams.getParam("queue") ?? "true") === "true";
+      const debug = (urlParams.getParam("debug") ?? "false") === "true";
+
+      // Create overlay even if user is missing (so test button can still work)
+      const overlay = new RedeemOverlay({
+        user: user || "test-user",
+        durationMs: Math.max(1, durationSec) * 1000,
+        queue,
+        debug,
+      });
+
+      // Show test button only when debug=true (you can change this if you want always visible)
+      const controls = document.getElementById("test-controls");
+      if (debug) controls.classList.remove("hidden");
+
+      // Wire the test button
+      document.getElementById("testBtn").addEventListener("click", () => {
+        // Fake data (you can randomize if you want)
+        overlay.onRedeem({
+          reward_title: "request predik",
+          user_id: 89060770,
+          channel_id: 87788191,
+          username: "bijikmorger",
+          user_input: "THISISAREALLYLONGSTRINGWITHOUTSPACESANDITSHOULDWRAPCORRECTLYANDNOTBREAKTHEUIAAAAAAAAAAAAAAAAAAAA",
+          reward_background_color: "#FFD899",
+        });
+      });
+
+      if (!user) {
+        overlay.setStatus("Missing ?user=  (debug test mode)");
+      } else {
+        overlay.start();
+      }
+    </script>
+  </body>
+</html>
