@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Kick Redeem Overlay</title>
+    <link rel="preload" as="audio" href="assets/redeem.mp3">
     <style>
     :root {
         --bg: rgba(20, 20, 20, 0.85);
@@ -247,6 +248,11 @@
 
           this.statusEl = document.getElementById("status");
           this.stageEl = document.getElementById("stage");
+
+          // Preload redeem sound
+          this.redeemAudio = new Audio("assets/redeem.mp3");
+          this.redeemAudio.preload = "auto";
+          this.redeemAudio.load();
         }
 
         setStatus(text) {
@@ -424,6 +430,7 @@
           this.stageEl.appendChild(card);
 
           requestAnimationFrame(() => card.classList.add("show"));
+          this.playRedeemSound();
 
           setTimeout(() => {
             card.classList.remove("show");
@@ -434,6 +441,21 @@
               if (typeof done === "function") done();
             }, 230);
           }, this.durationMs);
+        }
+
+        playRedeemSound() {
+          if (!this.redeemAudio) return;
+          try {
+            this.redeemAudio.currentTime = 0;
+            const playPromise = this.redeemAudio.play();
+            if (playPromise?.catch) {
+              playPromise.catch((err) => {
+                if (this.debug) console.warn("Audio play blocked:", err);
+              });
+            }
+          } catch (err) {
+            if (this.debug) console.warn("Audio play failed:", err);
+          }
         }
 
         escapeHTML(str) {
