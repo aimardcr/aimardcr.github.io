@@ -1,521 +1,496 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark scroll-smooth">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Aimar Sechan Adhitya</title>
-    <meta name="description" content="Security Researcher, Mobile Anti-Cheat Developer, Android Security Enthusiast" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: #000;
-            color: #fff;
-            overflow-x: hidden;
-        }
-        
-        /* Terminal-style hero */
-        .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: 
-                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
-        
-        .terminal {
-            width: 90%;
-            max-width: 800px;
-            background: rgba(10, 10, 10, 0.95);
-            border: 2px solid #00ff00;
-            border-radius: 8px;
-            box-shadow: 0 0 50px rgba(0, 255, 0, 0.3);
-            overflow: hidden;
-        }
-        
-        .terminal-header {
-            background: #00ff00;
-            padding: 8px 16px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .terminal-btn {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #000;
-        }
-        
-        .terminal-body {
-            padding: 30px;
-            font-family: 'Fira Code', monospace;
-            font-size: 16px;
-            line-height: 1.8;
-        }
-        
-        .prompt {
-            color: #00ff00;
-            margin-bottom: 10px;
-        }
-        
-		.cursor {
-			display: inline-block;
-			width: 0.6ch;          /* match character width */
-			height: 1em;           /* match font height */
-			background: #00ff00;
-			vertical-align: baseline;
-			position: relative;
-			top: 0.2em;            /* fine-tune baseline alignment */
-			animation: blink 1s infinite;
-		}
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-        
-        .output {
-            color: #aaa;
-            margin: 5px 0 5px 20px;
-        }
-        
-        .highlight {
-            color: #00ff00;
-            font-weight: 600;
-        }
-        
-        .scroll-indicator {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #00ff00;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-10px); }
-        }
-        
-        /* Structured content layout */
-        .content {
-            min-height: 100vh;
-            padding: 80px 20px;
-            background: #000;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .section {
-            margin-bottom: 80px;
-        }
-        
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-        
-        .section-number {
-            font-family: 'Fira Code', monospace;
-            font-size: 18px;
-            color: #00ff00;
-            font-weight: 600;
-        }
-        
-        .section-title {
-            font-size: 36px;
-            font-weight: 700;
-            color: #fff;
-        }
-        
-        .section-line {
-            flex: 1;
-            height: 1px;
-            background: linear-gradient(90deg, #00ff00, transparent);
-        }
-        
-        /* About */
-        .about-content {
-            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-            border: 1px solid #333;
-            border-left: 3px solid #00ff00;
-            padding: 40px;
-            border-radius: 8px;
-        }
-        
-        .about-content p {
-            font-size: 18px;
-            color: #999;
-            line-height: 1.8;
-        }
-        
-        /* Projects Grid */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-        
-        .project {
-            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 30px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .project::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 3px;
-            height: 100%;
-            background: #00ff00;
-            transform: scaleY(0);
-            transition: transform 0.3s;
-        }
-        
-        .project:hover::before {
-            transform: scaleY(1);
-        }
-        
-        .project:hover {
-            border-color: #00ff00;
-            transform: translateX(10px);
-        }
-        
-        .project-number {
-            font-family: 'Fira Code', monospace;
-            font-size: 14px;
-            color: #00ff00;
-            margin-bottom: 15px;
-        }
-        
-        .project h3 {
-            font-size: 24px;
-            margin-bottom: 15px;
-            color: #fff;
-        }
-        
-        .project-link {
-            font-family: 'Fira Code', monospace;
-            font-size: 14px;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .project:hover .project-link {
-            color: #00ff00;
-        }
-        
-        /* Skills Grid */
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-        }
-        
-        .skill-item {
-            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 30px 20px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-        
-        .skill-item:hover {
-            border-color: #00ff00;
-            transform: translateY(-5px);
-        }
-        
-        .skill-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-        }
-        
-        .skill-item h4 {
-            font-size: 16px;
-            color: #fff;
-        }
-        
-        /* Contact Grid */
-        .contact-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .contact {
-            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 30px;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            transition: all 0.3s;
-        }
-        
-        .contact:hover {
-            border-color: #00ff00;
-            transform: translateX(10px);
-        }
-        
-        .contact-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(0, 255, 0, 0.1);
-            border: 1px solid rgba(0, 255, 0, 0.2);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            flex-shrink: 0;
-        }
-        
-        .contact-text h4 {
-            font-size: 18px;
-            margin-bottom: 5px;
-            color: #fff;
-        }
-        
-        .contact-text p {
-            font-size: 14px;
-            color: #666;
-            font-family: 'Fira Code', monospace;
-        }
-        
-        /* Footer */
-        .footer {
-            margin-top: 100px;
-            padding: 40px 0;
-            text-align: center;
-            border-top: 1px solid #333;
-        }
-        
-        .footer p {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .skills-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .contact-grid {
-                grid-template-columns: 1fr;
+    <title>Aimar Sechan Adhitya | Security Researcher</title>
+    <meta name="description"
+        content="Professional portfolio of Aimar Sechan Adhitya, a Security Researcher and Mobile Anti-Cheat Developer." />
+
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#0f172a', /* Slate 900 */
+                            card: '#1e293b', /* Slate 800 */
+                            text: '#f8fafc', /* Slate 50 */
+                            muted: '#94a3b8' /* Slate 400 */
+                        },
+                        light: {
+                            bg: '#ffffff',
+                            card: '#f8fafc',
+                            text: '#1e293b',
+                            muted: '#64748b'
+                        },
+                        accent: {
+                            DEFAULT: '#3b82f6', /* Blue 500 */
+                            hover: '#2563eb',
+                            glow: 'rgba(59, 130, 246, 0.5)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
             }
         }
-        
-        @media (max-width: 640px) {
-            .section-title {
-                font-size: 28px;
-            }
-            
-            .skills-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .terminal-body {
-                font-size: 14px;
-                padding: 20px;
-            }
-        }
-    </style>
+    </script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
-<body>
-    <!-- Hero Terminal -->
-    <section class="hero">
-        <div class="terminal">
-            <div class="terminal-header">
-                <div class="terminal-btn"></div>
-                <div class="terminal-btn"></div>
-                <div class="terminal-btn"></div>
+<body
+    class="bg-dark-bg text-dark-text dark:bg-slate-900 dark:text-slate-50 transition-colors duration-300 antialiased selection:bg-accent selection:text-white">
+
+    <!-- Navigation -->
+    <nav
+        class="fixed w-full z-50 top-0 start-0 glass border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <a href="#" class="flex items-center space-x-3 rtl:space-x-reverse group">
+                <span
+                    class="self-center text-xl font-bold whitespace-nowrap dark:text-white font-display tracking-tight group-hover:text-accent transition-colors">aimardcr.</span>
+            </a>
+            <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+                <a href="#contact"
+                    class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition-all hover:scale-105">Get
+                    in touch</a>
             </div>
-            <div class="terminal-body">
-                <div class="prompt">$ whoami</div>
-                <div class="output">Aimar Sechan Adhitya</div>
-                
-                <div class="prompt" style="margin-top: 20px;">$ cat role.txt</div>
-                <div class="output">→ Security Researcher</div>
-                <div class="output">→ Mobile Anti-Cheat Developer</div>
-                <div class="output">→ Android Security Enthusiast</div>
-                
-                <div class="prompt" style="margin-top: 20px;">$ ls -la expertise/</div>
-                <div class="output">drwxr-xr-x  6 aimar  staff   192 Jan 14 2026 reverse_engineering</div>
-                <div class="output">drwxr-xr-x  4 aimar  staff   128 Jan 14 2026 native_protections</div>
-                <div class="output">drwxr-xr-x  5 aimar  staff   160 Jan 14 2026 runtime_detection</div>
-                
-                <div class="prompt" style="margin-top: 20px;">$ <span class="cursor"></span></div>
+            <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-sticky">
+                <ul
+                    class="flex flex-col p-4 md:p-0 mt-4 font-medium md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 border-0 bg-transparent">
+                    <li>
+                        <a href="#about"
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 transition-colors">About</a>
+                    </li>
+                    <li>
+                        <a href="#expertise"
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 transition-colors">Expertise</a>
+                    </li>
+                    <li>
+                        <a href="#projects"
+                            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 transition-colors">Projects</a>
+                    </li>
+                </ul>
             </div>
         </div>
-        <div class="scroll-indicator">Scroll to explore ↓</div>
-    </section>
+    </nav>
 
-    <!-- Content Sections -->
-    <section class="content">
-        <div class="container">
-            <!-- About -->
-            <div class="section">
-                <div class="section-header">
-                    <span class="section-number">01</span>
-                    <h2 class="section-title">About</h2>
-                    <div class="section-line"></div>
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center relative overflow-hidden pt-20">
+        <!-- Background Elements -->
+        <div class="absolute top-0 left-0 w-full h-full -z-10 opacity-20 dark:opacity-10 pointer-events-none">
+            <div
+                class="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob">
+            </div>
+            <div
+                class="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000">
+            </div>
+            <div
+                class="absolute bottom-1/4 left-1/3 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000">
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
+            <!-- Left Column: Content -->
+            <div class="fade-in-up md:pl-8 lg:pl-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium mb-6 animate-float"
+                    style="animation-duration: 3s;">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                    </span>
+                    <span id="greeting">Hello</span>
                 </div>
-                <div class="about-content">
-                    <p>
-                        I specialize in Android and mobile security research, focusing on reverse engineering, 
-                        native protections, and mobile anti-cheat systems. My work involves runtime detection, 
-                        tamper resistance, and analyzing real-world attack techniques against production applications.
-                    </p>
+
+                <h1 class="text-5xl lg:text-7xl font-bold mb-6 font-display tracking-tight leading-tight">
+                    Securing the <br />
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">Mobile
+                        World</span>
+                </h1>
+
+                <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-8 font-light leading-relaxed max-w-lg">
+                    I'm <strong class="font-semibold text-gray-900 dark:text-gray-100">Aimar Sechan Adhitya</strong>, a
+                    Security Researcher specializing in Android internals, reverse engineering, and robust anti-cheat
+                    systems.
+                </p>
+
+                <div class="flex flex-wrap gap-4">
+                    <a href="#projects"
+                        class="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium shadow-lg shadow-blue-500/20 hover:-translate-y-1 transition-all duration-300">
+                        View Projects
+                    </a>
+                    <a href="https://github.com/aimardcr" target="_blank"
+                        class="px-8 py-3.5 bg-white dark:bg-slate-800 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all duration-300 flex items-center gap-2">
+                        <i data-lucide="github" class="w-5 h-5"></i> GitHub
+                    </a>
                 </div>
             </div>
 
-            <!-- Projects -->
-            <div class="section">
-                <div class="section-header">
-                    <span class="section-number">02</span>
-                    <h2 class="section-title">Projects</h2>
-                    <div class="section-line"></div>
-                </div>
-                <div class="projects-grid">
-                    <a href="https://github.com/aimardcr/APKKiller" target="_blank" class="project">
-                        <div class="project-number">[01]</div>
-                        <h3>APK Killer</h3>
-                        <span class="project-link">github.com/aimardcr/APKKiller</span>
-                    </a>
+            <!-- Right Column: Visual -->
+            <div class="relative hidden md:block fade-in-up" style="transition-delay: 200ms;">
+                <div
+                    class="relative z-10 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 transform rotate-2 hover:rotate-0 transition-transform duration-500 max-w-md mx-auto">
+                    <!-- Terminal Header -->
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <div class="ml-auto text-xs text-slate-500 font-mono">security_check.cpp</div>
+                    </div>
 
-                    <a href="https://github.com/aimardcr/AndroidNativeGuard" target="_blank" class="project">
-                        <div class="project-number">[02]</div>
-                        <h3>Android Native Guard</h3>
-                        <span class="project-link">github.com/aimardcr/AndroidNativeGuard</span>
-                    </a>
-
-                    <a href="https://github.com/aimardcr/reAVS" target="_blank" class="project">
-                        <div class="project-number">[03]</div>
-                        <h3>reAVS</h3>
-                        <span class="project-link">github.com/aimardcr/reAVS</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Skills -->
-            <div class="section">
-                <div class="section-header">
-                    <span class="section-number">03</span>
-                    <h2 class="section-title">Expertise</h2>
-                    <div class="section-line"></div>
-                </div>
-                <div class="skills-grid">
-                    <div class="skill-item">
-                        <div class="skill-icon">🔐</div>
-                        <h4>Android Security</h4>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-icon">🛡️</div>
-                        <h4>Mobile Anti-Cheat</h4>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-icon">🔧</div>
-                        <h4>Reverse Engineering</h4>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-icon">💻</div>
-                        <h4>ARM / ARM64</h4>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-icon">⚡</div>
-                        <h4>Native Protections</h4>
-                    </div>
-                    <div class="skill-item">
-                        <div class="skill-icon">🎯</div>
-                        <h4>Runtime Detection</h4>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Contact -->
-            <div class="section">
-                <div class="section-header">
-                    <span class="section-number">04</span>
-                    <h2 class="section-title">Contact</h2>
-                    <div class="section-line"></div>
-                </div>
-                <div class="contact-grid">
-                    <a href="https://www.linkedin.com/in/aimardcr/" target="_blank" class="contact">
-                        <div class="contact-icon">💼</div>
-                        <div class="contact-text">
-                            <h4>LinkedIn</h4>
-                            <p>/in/aimardcr</p>
+                    <!-- Code Snippet -->
+                    <div class="font-mono text-sm leading-relaxed text-slate-300">
+                        <div class="flex"><span class="text-purple-400 mr-2">bool</span> <span
+                                class="text-blue-400">checkIntegrity</span><span class="text-slate-500">() {</span>
                         </div>
-                    </a>
-
-                    <a href="https://www.facebook.com/aimardcr/" target="_blank" class="contact">
-                        <div class="contact-icon">📱</div>
-                        <div class="contact-text">
-                            <h4>Facebook</h4>
-                            <p>/aimardcr</p>
-                        </div>
-                    </a>
-
-                    <a href="mailto:aimar.adhitya@gmail.com" class="contact">
-                        <div class="contact-icon">✉️</div>
-                        <div class="contact-text">
-                            <h4>Email</h4>
-                            <p>aimar.adhitya@gmail.com</p>
-                        </div>
-                    </a>
+                        <div class="flex pl-4"><span class="text-slate-500">// Verify signature</span></div>
+                        <div class="flex pl-4"><span class="text-purple-400">if</span> <span
+                                class="text-slate-500">(!</span><span class="text-yellow-300">Signature</span><span
+                                class="text-slate-500">::</span><span class="text-blue-300">isValid</span><span
+                                class="text-slate-500">()) {</span></div>
+                        <div class="flex pl-8"><span class="text-blue-400">reportThreat</span><span
+                                class="text-slate-500">(</span><span class="text-green-300">"Tampering
+                                Detected"</span><span class="text-slate-500">);</span></div>
+                        <div class="flex pl-8"><span class="text-purple-400">return</span> <span
+                                class="text-orange-400">&nbsp;false</span><span class="text-slate-500">;</span></div>
+                        <div class="flex pl-4"><span class="text-slate-500">}</span></div>
+                        <div class="flex pl-4 mt-2"><span class="text-slate-500">// Check for hooks</span></div>
+                        <div class="flex pl-4"><span class="text-purple-400">if</span> <span
+                                class="text-slate-500">(</span><span class="text-blue-300">Memory</span><span
+                                class="text-slate-500">::</span><span class="text-blue-300">isHooked</span><span
+                                class="text-slate-500">()) {</span></div>
+                        <div class="flex pl-8"><span class="text-blue-400">crashApp</span><span
+                                class="text-slate-500">();</span></div>
+                        <div class="flex pl-4"><span class="text-slate-500">}</span></div>
+                        <div class="flex pl-4 mt-2"><span class="text-purple-400">return</span> <span
+                                class="text-orange-400">&nbsp;true</span><span class="text-slate-500">;</span></div>
+                        <div class="flex"><span class="text-slate-500">}</span></div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Footer -->
-            <div class="footer">
-                <p>© 2026 Aimar Sechan Adhitya — Crafted with precision</p>
+                <!-- Floating Elements -->
+                <div
+                    class="absolute -top-10 -right-10 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl animate-float border border-gray-100 dark:border-gray-700">
+                    <i data-lucide="shield-check" class="w-8 h-8 text-green-500"></i>
+                </div>
+                <div class="absolute -bottom-8 -left-8 bg-white dark:bg-slate-800 p-4 rounded-xl shadow-xl animate-float border border-gray-100 dark:border-gray-700"
+                    style="animation-duration: 5s;">
+                    <i data-lucide="smartphone" class="w-8 h-8 text-blue-500"></i>
+                </div>
             </div>
         </div>
     </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-gray-50 dark:bg-slate-900/50 transition-colors">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 font-display">About Me</h2>
+                <div class="w-20 h-1 bg-accent mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center fade-in-up">
+                <div class="relative group">
+                    <div
+                        class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200">
+                    </div>
+                    <div
+                        class="relative bg-white dark:bg-slate-800 p-8 rounded-2xl border border-gray-100 dark:border-gray-700">
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+                            I am a passionate <strong class="text-accent">Security Researcher</strong> and Mobile
+                            Anti-Cheat Developer. My journey involves deep diving into the Android internals, dissecting
+                            applications to understand their vulnerabilities, and building systems to protect them.
+                        </p>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                            With a strong focus on <strong class="text-accent">Native Protections</strong> and runtime
+                            detection, I strive to stay ahead of the curve in the ever-evolving landscape of mobile
+                            security.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div
+                        class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-gray-700 hover:border-accent transition-colors">
+                        <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+                            <i data-lucide="shield-check" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Defensive Security</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Building robust anti-tamper mechanisms.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-gray-700 hover:border-accent transition-colors">
+                        <div
+                            class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
+                            <i data-lucide="smartphone" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Mobile Internals</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Deep understanding of Android/ARM64.</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-gray-700 hover:border-accent transition-colors">
+                        <div
+                            class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
+                            <i data-lucide="code-2" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg">Reverse Engineering</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Analyzing suspect binaries and malware.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Expertise Section -->
+    <section id="expertise" class="py-24">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 font-display">Expertise</h2>
+                <div class="w-20 h-1 bg-accent mx-auto rounded-full"></div>
+                <p class="mt-4 text-gray-600 dark:text-gray-400">Technologies and areas I specialize in</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 fade-in-up">
+                <!-- Skill Card -->
+                <div
+                    class="group p-6 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all hover:-translate-y-1 shadow-sm hover:shadow-md">
+                    <i data-lucide="lock"
+                        class="w-8 h-8 text-blue-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold mb-2">Android Security</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Security hardening & analysis</p>
+                </div>
+
+                <div
+                    class="group p-6 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-500 transition-all hover:-translate-y-1 shadow-sm hover:shadow-md">
+                    <i data-lucide="shield-alert"
+                        class="w-8 h-8 text-purple-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold mb-2">Anti-Cheat</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Detection & prevention systems</p>
+                </div>
+
+                <div
+                    class="group p-6 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-500 transition-all hover:-translate-y-1 shadow-sm hover:shadow-md">
+                    <i data-lucide="binary"
+                        class="w-8 h-8 text-green-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold mb-2">Reverse Engineering</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Static & dynamic analysis</p>
+                </div>
+
+                <div
+                    class="group p-6 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 hover:border-yellow-500 dark:hover:border-yellow-500 transition-all hover:-translate-y-1 shadow-sm hover:shadow-md">
+                    <i data-lucide="cpu"
+                        class="w-8 h-8 text-yellow-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold mb-2">ARM64 Assembly</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Low-level instruction sets</p>
+                </div>
+
+                <div
+                    class="group p-6 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all hover:-translate-y-1 shadow-sm hover:shadow-md">
+                    <i data-lucide="layers"
+                        class="w-8 h-8 text-indigo-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold mb-2">Software Engineering</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Heavy C++ focus & Polyglot</p>
+                </div>
+
+                <div
+                    class="group p-6 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 hover:border-red-500 dark:hover:border-red-500 transition-all hover:-translate-y-1 shadow-sm hover:shadow-md">
+                    <i data-lucide="skull"
+                        class="w-8 h-8 text-red-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold mb-2">Penetration Testing</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Network, Web, Mobile & more</p>
+                </div>
+
+                <div
+                    class="group p-6 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 hover:border-cyan-500 dark:hover:border-cyan-500 transition-all hover:-translate-y-1 shadow-sm hover:shadow-md">
+                    <i data-lucide="globe"
+                        class="w-8 h-8 text-cyan-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold mb-2">Web Development</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Modern web technologies</p>
+                </div>
+
+                <div
+                    class="group p-6 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 hover:border-orange-500 dark:hover:border-orange-500 transition-all hover:-translate-y-1 shadow-sm hover:shadow-md">
+                    <i data-lucide="gamepad-2"
+                        class="w-8 h-8 text-orange-500 mb-4 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="font-bold mb-2">Gaming</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">FPS & Competitive Gaming</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-24 bg-gray-50 dark:bg-slate-900/50 transition-colors">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="text-center mb-16 fade-in-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 font-display">Featured Projects</h2>
+                <div class="w-20 h-1 bg-accent mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <a href="https://github.com/aimardcr/APKKiller" target="_blank" class="block group fade-in-up">
+                    <div
+                        class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+                        <div
+                            class="h-2 bg-gradient-to-r from-blue-500 to-purple-500 w-full transform origin-left group-hover:scale-x-100 transition-transform duration-500">
+                        </div>
+                        <div class="p-8 flex-1">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold group-hover:text-accent transition-colors">APK Killer</h3>
+                                <i data-lucide="external-link"
+                                    class="w-5 h-5 text-gray-400 group-hover:text-accent"></i>
+                            </div>
+                            <p class="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3">
+                                A tool designed to assist in the analysis and modification of APK files. Streamlines the
+                                reverse engineering process for Android applications.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mt-auto">
+                                <span
+                                    class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">Tool</span>
+                                <span
+                                    class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Python</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 2 -->
+                <a href="https://github.com/aimardcr/AndroidNativeGuard" target="_blank" class="block group fade-in-up"
+                    style="transition-delay: 100ms;">
+                    <div
+                        class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+                        <div
+                            class="h-2 bg-gradient-to-r from-purple-500 to-pink-500 w-full transform origin-left group-hover:scale-x-100 transition-transform duration-500">
+                        </div>
+                        <div class="p-8 flex-1">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold group-hover:text-accent transition-colors">Android Native
+                                    Guard</h3>
+                                <i data-lucide="external-link"
+                                    class="w-5 h-5 text-gray-400 group-hover:text-accent"></i>
+                            </div>
+                            <p class="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3">
+                                Advanced security library for Android applications protecting against tampering,
+                                debugging, and unauthorized modifications at the native level.
+                            </p>
+                            <div class="flex flex-wrap gap-2 mt-auto">
+                                <span
+                                    class="px-3 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">Security</span>
+                                <span
+                                    class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">C++</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Project 3 -->
+                <a href="https://github.com/aimardcr/reAVS" target="_blank" class="block group fade-in-up"
+                    style="transition-delay: 200ms;">
+                    <div
+                        class="relative overflow-hidden rounded-2xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+                        <div
+                            class="h-2 bg-gradient-to-r from-green-500 to-teal-500 w-full transform origin-left group-hover:scale-x-100 transition-transform duration-500">
+                        </div>
+                        <div class="p-8 flex-1">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold group-hover:text-accent transition-colors">reAVS</h3>
+                                <i data-lucide="external-link"
+                                    class="w-5 h-5 text-gray-400 group-hover:text-accent"></i>
+                            </div>
+                            <p class="text-gray-600 dark:text-gray-300 mb-6 line-clamp-3">
+                                Research project focusing on analyzing and verifying improved Audio/Video
+                                synchronization techniques or related security implications (context inferred).
+                            </p>
+                            <div class="flex flex-wrap gap-2 mt-auto">
+                                <span
+                                    class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300">Research</span>
+                                <span
+                                    class="px-3 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Analysis</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer / Contact -->
+    <footer id="contact"
+        class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 pt-16 pb-8 transition-colors">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-8 font-display">Get In Touch</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-12 max-w-xl mx-auto">
+                Always open to discussing new opportunities, security research collaborations, or just a friendly chat
+                about the latest in Android security.
+            </p>
+
+            <div class="flex justify-center gap-8 mb-16">
+                <a href="https://github.com/aimardcr" target="_blank"
+                    class="text-gray-400 hover:text-gray-900 dark:hover:text-white transform hover:scale-110 transition-all">
+                    <i data-lucide="github" class="w-8 h-8"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/aimardcr/" target="_blank"
+                    class="text-gray-400 hover:text-blue-600 transform hover:scale-110 transition-all">
+                    <i data-lucide="linkedin" class="w-8 h-8"></i>
+                </a>
+                <a href="mailto:aimar.adhitya@gmail.com"
+                    class="text-gray-400 hover:text-red-500 transform hover:scale-110 transition-all">
+                    <i data-lucide="mail" class="w-8 h-8"></i>
+                </a>
+                <a href="https://www.facebook.com/aimardcr/" target="_blank"
+                    class="text-gray-400 hover:text-blue-500 transform hover:scale-110 transition-all">
+                    <i data-lucide="facebook" class="w-8 h-8"></i>
+                </a>
+            </div>
+
+            <div
+                class="flex flex-col md:flex-row justify-between items-center border-t border-gray-100 dark:border-gray-800 pt-8 text-sm text-gray-500">
+                <p>© 2026 Aimar Sechan Adhitya. All rights reserved.</p>
+                <div class="mt-4 md:mt-0">
+                    <span class="opacity-75">Crafted with precision</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Theme Toggle Floating Button -->
+    <button id="theme-toggle"
+        class="fixed bottom-8 right-8 w-14 h-14 bg-white dark:bg-slate-800 rounded-full shadow-2xl flex items-center justify-center text-gray-800 dark:text-yellow-400 hover:scale-110 transition-all z-50 border border-gray-200 dark:border-gray-700 group">
+        <i data-lucide="sun" id="icon-sun" class="w-6 h-6 hidden group-hover:rotate-90 transition-transform"></i>
+        <i data-lucide="moon" id="icon-moon" class="w-6 h-6 group-hover:-rotate-12 transition-transform"></i>
+    </button>
+
+    <!-- Init Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <!-- Main JS -->
+    <script src="assets/js/main.js"></script>
 </body>
+
 </html>
