@@ -56,18 +56,42 @@ document.querySelectorAll('.fade-in-up').forEach(el => {
     observer.observe(el);
 });
 
-// Dynamic Greeting
+// Typing Animation
 const greetings = ["Hello", "Hola", "Bonjour", "Namaste", "Konnichiwa", "Salam"];
 const greetingElement = document.getElementById('greeting');
 let greetingIndex = 0;
+let charIndex = 0;
+let isDeleting = false;
+let typeSpeed = 100;
 
-if (greetingElement) {
-    setInterval(() => {
-        greetingElement.style.opacity = 0;
-        setTimeout(() => {
-            greetingIndex = (greetingIndex + 1) % greetings.length;
-            greetingElement.textContent = greetings[greetingIndex];
-            greetingElement.style.opacity = 1;
-        }, 500);
-    }, 3000);
+function type() {
+    if (!greetingElement) return;
+
+    const currentGreeting = greetings[greetingIndex];
+
+    if (isDeleting) {
+        greetingElement.textContent = currentGreeting.substring(0, charIndex - 1);
+        charIndex--;
+        typeSpeed = 50; // Faster when deleting
+    } else {
+        greetingElement.textContent = currentGreeting.substring(0, charIndex + 1);
+        charIndex++;
+        typeSpeed = 150; // Slower when typing
+    }
+
+    if (!isDeleting && charIndex === currentGreeting.length) {
+        // Finished typing word
+        isDeleting = true;
+        typeSpeed = 2000; // Pause at end
+    } else if (isDeleting && charIndex === 0) {
+        // Finished deleting word
+        isDeleting = false;
+        greetingIndex = (greetingIndex + 1) % greetings.length;
+        typeSpeed = 500; // Pause before starting new word
+    }
+
+    setTimeout(type, typeSpeed);
 }
+
+// Start typing animation
+document.addEventListener('DOMContentLoaded', type);
