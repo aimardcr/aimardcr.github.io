@@ -254,6 +254,56 @@
       30% { background: rgba(255, 44, 241, 0.12); }
     }
 
+    /* Vote Extremes */
+    #extremes-area {
+      display: none;
+    }
+
+    #extremes-area.active {
+      display: block;
+    }
+
+    .extremes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .extreme-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .extreme-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .extreme-value {
+      font-size: 28px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .extreme-value.low { color: var(--blue); }
+    .extreme-value.high { color: var(--orange); }
+
+    .extreme-outcome {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     /* Activity Log */
     #log-area .card {
       max-height: 360px;
@@ -421,9 +471,27 @@
       </div>
     </div>
 
-    <div id="log-area">
+    <div id="extremes-area">
+      <div class="log-title" style="margin-bottom:12px">Vote Extremes</div>
+      <div class="extremes-grid">
+        <div class="extreme-card">
+          <div class="extreme-label">Lowest Vote</div>
+          <div class="extreme-value low" id="ext-low">—</div>
+          <div class="extreme-outcome" id="ext-low-outcome"></div>
+        </div>
+        <div class="extreme-card">
+          <div class="extreme-label">Highest Vote</div>
+          <div class="extreme-value high" id="ext-high">—</div>
+          <div class="extreme-outcome" id="ext-high-outcome"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="log-area" style="margin-top:14px">
       <div class="log-title">Activity Log</div>
-      <div class="card" id="log-container"></div>
+      <div class="card" id="log-container">
+        <div class="log-entry" id="log-placeholder"><span class="log-msg" style="color:var(--muted)">Waiting for data...</span></div>
+      </div>
     </div>
   </div>
 
@@ -446,6 +514,9 @@
         this.timerInterval = null;
         this.timerEnd = null;
 
+        this.lowestVote = null;
+        this.highestVote = null;
+
         this.statusBadge = document.getElementById("status-badge");
         this.statusText = document.getElementById("status-text");
         this.idleMsg = document.getElementById("idle-msg");
@@ -460,6 +531,12 @@
         this.totalVotes = document.getElementById("total-votes");
         this.logContainer = document.getElementById("log-container");
         this.predCard = document.getElementById("prediction-card");
+
+        this.extremesArea = document.getElementById("extremes-area");
+        this.extLow = document.getElementById("ext-low");
+        this.extLowOutcome = document.getElementById("ext-low-outcome");
+        this.extHigh = document.getElementById("ext-high");
+        this.extHighOutcome = document.getElementById("ext-high-outcome");
       }
 
       setStatus(text, connected) {
@@ -552,7 +629,14 @@
 
         this.idleMsg.style.display = "none";
         this.predArea.classList.add("active");
+        this.extremesArea.classList.add("active");
 
+        const placeholder = document.getElementById("log-placeholder");
+        if (placeholder) placeholder.remove();
+
+        this.lowestVote = null;
+        this.highestVote = null;
+        this.renderExtremes();
         this.renderPrediction();
         this.startTimer(pred.duration, pred.created_at);
 
@@ -617,6 +701,13 @@
 
           if (pointsDelta <= 0 && votesDelta <= 0) continue;
 
+          if (pointsDelta > 0 && votesDelta === 1) {
+            this.trackExtremes(pointsDelta, outcome.title);
+          } else if (pointsDelta > 0 && votesDelta > 1) {
+            const avg = Math.round(pointsDelta / votesDelta);
+            this.trackExtremes(avg, outcome.title);
+          }
+
           if (pointsDelta >= WHALE_THRESHOLD) {
             const avg = votesDelta > 0 ? Math.round(pointsDelta / votesDelta) : pointsDelta;
             this.addLog(
@@ -631,6 +722,33 @@
               "log-vote"
             );
           }
+        }
+      }
+
+      trackExtremes(points, outcomeName) {
+        if (this.lowestVote === null || points < this.lowestVote.points) {
+          this.lowestVote = { points, outcome: outcomeName };
+        }
+        if (this.highestVote === null || points > this.highestVote.points) {
+          this.highestVote = { points, outcome: outcomeName };
+        }
+        this.renderExtremes();
+      }
+
+      renderExtremes() {
+        if (this.lowestVote) {
+          this.extLow.textContent = this.formatNum(this.lowestVote.points);
+          this.extLowOutcome.textContent = `on "${this.lowestVote.outcome}"`;
+        } else {
+          this.extLow.textContent = "—";
+          this.extLowOutcome.textContent = "";
+        }
+        if (this.highestVote) {
+          this.extHigh.textContent = this.formatNum(this.highestVote.points);
+          this.extHighOutcome.textContent = `on "${this.highestVote.outcome}"`;
+        } else {
+          this.extHigh.textContent = "—";
+          this.extHighOutcome.textContent = "";
         }
       }
 
