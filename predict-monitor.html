@@ -675,7 +675,9 @@
         this.stopTimer();
 
         if (pred.state === "RESOLVED") {
-          const winner = pred.outcomes.find(o => o.return_rate > 0 && o.total_vote_amount > 0);
+          const winner = pred.winning_outcome_id
+            ? pred.outcomes.find(o => o.id === pred.winning_outcome_id)
+            : null;
           if (winner) {
             this.addLog(`Predict RESOLVED — Winner: "${winner.title}"`, "log-resolved");
           } else {
@@ -786,7 +788,7 @@
         pred.outcomes.forEach((o, i) => {
           const pct = totalPoints > 0 ? (o.total_vote_amount / totalPoints) * 100 : 0;
           const color = OUTCOME_COLORS[i % OUTCOME_COLORS.length];
-          const isWinner = isResolved && o.return_rate > 0 && o.total_vote_amount > 0;
+          const isWinner = isResolved && pred.winning_outcome_id === o.id;
 
           const el = document.createElement("div");
           el.className = "outcome" + (isWinner ? " winner" : "");
@@ -796,7 +798,7 @@
             <div class="outcome-content">
               <div class="outcome-left">
                 <div class="outcome-color" style="background:${color}"></div>
-                <div class="outcome-name">${this.escapeHTML(o.title)}${isWinner ? " ✓" : ""}</div>
+                <div class="outcome-name">${this.escapeHTML(o.title)} </div>
               </div>
               <div class="outcome-right">
                 <div class="outcome-stat">
