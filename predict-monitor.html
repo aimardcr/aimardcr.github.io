@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kick Prediction Monitor</title>
+  <title>Kick Predict Monitor</title>
   <style>
     :root {
       --bg: #0e0e10;
@@ -89,7 +89,7 @@
       margin-bottom: 14px;
     }
 
-    /* Prediction Card */
+    /* Predict Card */
     #prediction-area {
       display: none;
     }
@@ -382,7 +382,7 @@
 <body>
   <div id="app" class="outcome-colors">
     <header>
-      <h1>Prediction Monitor</h1>
+      <h1>Kick Predict Monitor</h1>
       <div style="display:flex;align-items:center;gap:10px;">
         <div id="test-controls">
           <button id="btn-create" type="button">Test Create</button>
@@ -399,7 +399,7 @@
 
     <div id="idle-msg">
       <div class="icon">⏳</div>
-      Waiting for a prediction to start…
+      Waiting for a predict to start…
     </div>
 
     <div id="prediction-area">
@@ -556,7 +556,7 @@
         this.renderPrediction();
         this.startTimer(pred.duration, pred.created_at);
 
-        this.addLog("Prediction created: " + pred.title, "log-created");
+        this.addLog("Predict created: " + pred.title, "log-created");
         pred.outcomes.forEach((o, i) => {
           this.addLog(`  Option ${i + 1}: ${o.title}`, "log-created");
         });
@@ -574,7 +574,7 @@
         this.renderPrediction();
 
         if (pred.state === "LOCKED" && (!prev || this.prediction?.state !== "LOCKED")) {
-          this.addLog("Prediction LOCKED — voting closed", "log-locked");
+          this.addLog("Predict LOCKED — voting closed", "log-locked");
         }
       }
 
@@ -593,14 +593,14 @@
         if (pred.state === "RESOLVED") {
           const winner = pred.outcomes.find(o => o.return_rate > 0 && o.total_vote_amount > 0);
           if (winner) {
-            this.addLog(`Prediction RESOLVED — Winner: "${winner.title}"`, "log-resolved");
+            this.addLog(`Predict RESOLVED — Winner: "${winner.title}"`, "log-resolved");
           } else {
-            this.addLog("Prediction RESOLVED", "log-resolved");
+            this.addLog("Predict RESOLVED", "log-resolved");
           }
         } else if (pred.state === "CANCELLED") {
-          this.addLog("Prediction CANCELLED — all points refunded", "log-cancelled");
+          this.addLog("Predict CANCELLED — all points refunded", "log-cancelled");
         } else {
-          this.addLog(`Prediction closed (${pred.state})`, "log-cancelled");
+          this.addLog(`Predict closed (${pred.state})`, "log-cancelled");
         }
       }
 
