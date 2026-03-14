@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kick Prediction Monitor</title>
+  <style>
+    :root {
+      --bg: #0e0e10;
+      --surface: #18181b;
+      --surface2: #1f1f23;
+      --border: #2a2a2e;
+      --text: #efeff1;
+      --muted: rgba(255, 255, 255, 0.5);
+      --accent: #53fc18;
+      --blue: #4f8cff;
+      --orange: #ff7a2f;
+      --red: #ff4a4a;
+      --yellow: #ffd84a;
+      --whale: #ff2cf1;
+      --outcome1: #4f8cff;
+      --outcome2: #ff7a2f;
+      --outcome3: #a259ff;
+      --outcome4: #ff4a4a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow-x: hidden;
+    }
+
+    #app {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    #status-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: var(--surface2);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #status-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+    }
+
+    #status-badge.connected .dot { background: var(--accent); }
+    #status-badge.connected { color: var(--accent); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    /* Prediction Card */
+    #prediction-area {
+      display: none;
+    }
+
+    #prediction-area.active {
+      display: block;
+    }
+
+    .pred-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .pred-title {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.3;
+      flex: 1;
+    }
+
+    .pred-state {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .pred-state.ACTIVE { background: rgba(83, 252, 24, 0.15); color: var(--accent); }
+    .pred-state.LOCKED { background: rgba(255, 216, 74, 0.15); color: var(--yellow); }
+    .pred-state.RESOLVED { background: rgba(79, 140, 255, 0.15); color: var(--blue); }
+    .pred-state.CANCELLED { background: rgba(255, 74, 74, 0.15); color: var(--red); }
+
+    .pred-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .pred-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Timer */
+    .timer {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      color: var(--yellow);
+    }
+
+    /* Outcomes */
+    .outcomes {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .outcome {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: border-color 0.3s;
+    }
+
+    .outcome.winner {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(83, 252, 24, 0.15);
+    }
+
+    .outcome-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      opacity: 0.15;
+      transition: width 0.6s cubic-bezier(.2, .8, .2, 1);
+      border-radius: 10px;
+    }
+
+    .outcome-content {
+      position: relative;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .outcome-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .outcome-color {
+      width: 4px;
+      height: 28px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .outcome-name {
+      font-weight: 700;
+      font-size: 15px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .outcome-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .outcome-stat {
+      text-align: right;
+    }
+
+    .outcome-stat .value {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .outcome-stat .label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .outcome-pct {
+      font-size: 22px;
+      font-weight: 900;
+      min-width: 58px;
+      text-align: right;
+    }
+
+    /* Whale Alert */
+    .whale-alert {
+      animation: whaleFlash 0.6s ease;
+    }
+
+    @keyframes whaleFlash {
+      0%, 100% { background: var(--surface); }
+      30% { background: rgba(255, 44, 241, 0.12); }
+    }
+
+    /* Activity Log */
+    #log-area .card {
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 14px 16px;
+    }
+
+    #log-area .card::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #log-area .card::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .log-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .log-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13px;
+      line-height: 1.5;
+      display: flex;
+      gap: 8px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .log-entry:last-child {
+      border-bottom: 0;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-time {
+      color: var(--muted);
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    .log-msg { flex: 1; }
+
+    .log-whale {
+      color: var(--whale);
+      font-weight: 700;
+    }
+
+    .log-created { color: var(--accent); }
+    .log-locked { color: var(--yellow); }
+    .log-resolved { color: var(--blue); }
+    .log-cancelled { color: var(--red); }
+    .log-vote { color: var(--text); }
+
+    /* Idle state */
+    #idle-msg {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    #idle-msg .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      opacity: 0.4;
+    }
+
+    /* Totals row */
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .totals-row .total-val {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* Test controls */
+    #test-controls {
+      display: none;
+      gap: 8px;
+    }
+
+    #test-controls.show {
+      display: flex;
+    }
+
+    #test-controls button {
+      appearance: none;
+      border: 0;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #111;
+      background: var(--accent);
+    }
+
+    #test-controls button:active {
+      transform: translateY(1px);
+    }
+
+    .outcome-colors { --c0: var(--outcome1); --c1: var(--outcome2); --c2: var(--outcome3); --c3: var(--outcome4); }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="outcome-colors">
+    <header>
+      <h1>Prediction Monitor</h1>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="test-controls">
+          <button id="btn-create" type="button">Test Create</button>
+          <button id="btn-vote" type="button">Test Vote</button>
+          <button id="btn-whale" type="button">Test Whale</button>
+          <button id="btn-close" type="button">Test Close</button>
+        </div>
+        <div id="status-badge">
+          <span class="dot"></span>
+          <span id="status-text">Connecting…</span>
+        </div>
+      </div>
+    </header>
+
+    <div id="idle-msg">
+      <div class="icon">⏳</div>
+      Waiting for a prediction to start…
+    </div>
+
+    <div id="prediction-area">
+      <div class="card" id="prediction-card">
+        <div class="pred-header">
+          <div class="pred-title" id="pred-title"></div>
+          <div class="pred-state" id="pred-state"></div>
+        </div>
+        <div class="pred-meta">
+          <span>⏱ <span class="timer" id="pred-timer">--:--</span></span>
+          <span id="pred-total-voters">0 voters</span>
+          <span id="pred-total-points">0 points</span>
+        </div>
+        <div class="outcomes" id="outcomes-container"></div>
+        <div class="totals-row">
+          <span>Total Pool: <span class="total-val" id="total-pool">0</span></span>
+          <span>Total Votes: <span class="total-val" id="total-votes">0</span></span>
+        </div>
+      </div>
+    </div>
+
+    <div id="log-area">
+      <div class="log-title">Activity Log</div>
+      <div class="card" id="log-container"></div>
+    </div>
+  </div>
+
+  <script>
+    const WHALE_THRESHOLD = 10000;
+    const OUTCOME_COLORS = ["var(--outcome1)", "var(--outcome2)", "var(--outcome3)", "var(--outcome4)"];
+
+    class PredictionMonitor {
+      constructor({ channelId, debug }) {
+        this.channelId = channelId;
+        this.debug = debug;
+
+        this.ws = null;
+        this.reconnectAttempts = 0;
+        this.maxReconnectDelay = 30000;
+        this.pingInterval = null;
+
+        this.prediction = null;
+        this.prevOutcomes = null;
+        this.timerInterval = null;
+        this.timerEnd = null;
+
+        this.statusBadge = document.getElementById("status-badge");
+        this.statusText = document.getElementById("status-text");
+        this.idleMsg = document.getElementById("idle-msg");
+        this.predArea = document.getElementById("prediction-area");
+        this.predTitle = document.getElementById("pred-title");
+        this.predState = document.getElementById("pred-state");
+        this.predTimer = document.getElementById("pred-timer");
+        this.predTotalVoters = document.getElementById("pred-total-voters");
+        this.predTotalPoints = document.getElementById("pred-total-points");
+        this.outcomesContainer = document.getElementById("outcomes-container");
+        this.totalPool = document.getElementById("total-pool");
+        this.totalVotes = document.getElementById("total-votes");
+        this.logContainer = document.getElementById("log-container");
+        this.predCard = document.getElementById("prediction-card");
+      }
+
+      setStatus(text, connected) {
+        this.statusText.textContent = text;
+        this.statusBadge.classList.toggle("connected", !!connected);
+      }
+
+      start() {
+        this.setStatus("Connecting…", false);
+        this.connectWebSocket();
+      }
+
+      connectWebSocket() {
+        const connect = () => {
+          const ws = new WebSocket(
+            "wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0-rc2&flash=false"
+          );
+          this.ws = ws;
+
+          ws.onerror = (e) => console.error("WebSocket error:", e);
+
+          ws.onclose = () => {
+            this.setStatus("Reconnecting…", false);
+            if (this.pingInterval) {
+              clearInterval(this.pingInterval);
+              this.pingInterval = null;
+            }
+            const delay = Math.min(
+              1000 * Math.pow(2, this.reconnectAttempts),
+              this.maxReconnectDelay
+            );
+            this.reconnectAttempts++;
+            setTimeout(connect, delay);
+          };
+
+          ws.onopen = () => {
+            this.reconnectAttempts = 0;
+            this.setStatus("Connected", true);
+
+            ws.send(JSON.stringify({
+              event: "pusher:subscribe",
+              data: { auth: "", channel: `predictions-channel-${this.channelId}` }
+            }));
+
+            if (this.debug) console.log("Subscribed: predictions-channel-" + this.channelId);
+
+            this.pingInterval = setInterval(() => {
+              ws.send(JSON.stringify({ event: "pusher:ping", data: {} }));
+            }, 60000);
+          };
+
+          ws.onmessage = (event) => this.parseMessage(event.data);
+        };
+
+        connect();
+      }
+
+      parseMessage(raw) {
+        const msg = JSON.parse(raw);
+
+        if (typeof msg.event === "string" && msg.event.startsWith("pusher")) return;
+
+        let data;
+        try {
+          data = typeof msg.data === "string" ? JSON.parse(msg.data) : msg.data;
+        } catch (e) {
+          if (this.debug) console.warn("Could not parse msg.data:", msg.data);
+          return;
+        }
+
+        if (this.debug) console.log("EVENT:", msg.event, data);
+
+        switch (msg.event) {
+          case "PredictionCreated":
+            this.onCreated(data.prediction);
+            break;
+          case "PredictionUpdated":
+            this.onUpdated(data.prediction);
+            break;
+          case "PredictionClosed":
+            this.onClosed(data.prediction);
+            break;
+        }
+      }
+
+      onCreated(pred) {
+        this.prediction = pred;
+        this.prevOutcomes = null;
+        this.storeOutcomeSnapshot(pred.outcomes);
+
+        this.idleMsg.style.display = "none";
+        this.predArea.classList.add("active");
+
+        this.renderPrediction();
+        this.startTimer(pred.duration, pred.created_at);
+
+        this.addLog("Prediction created: " + pred.title, "log-created");
+        pred.outcomes.forEach((o, i) => {
+          this.addLog(`  Option ${i + 1}: ${o.title}`, "log-created");
+        });
+      }
+
+      onUpdated(pred) {
+        const prev = this.prevOutcomes;
+        this.prediction = pred;
+
+        if (prev) {
+          this.detectChanges(prev, pred.outcomes, pred.state);
+        }
+
+        this.storeOutcomeSnapshot(pred.outcomes);
+        this.renderPrediction();
+
+        if (pred.state === "LOCKED" && (!prev || this.prediction?.state !== "LOCKED")) {
+          this.addLog("Prediction LOCKED — voting closed", "log-locked");
+        }
+      }
+
+      onClosed(pred) {
+        const prev = this.prevOutcomes;
+        this.prediction = pred;
+
+        if (prev) {
+          this.detectChanges(prev, pred.outcomes, pred.state);
+        }
+
+        this.storeOutcomeSnapshot(pred.outcomes);
+        this.renderPrediction();
+        this.stopTimer();
+
+        if (pred.state === "RESOLVED") {
+          const winner = pred.outcomes.find(o => o.return_rate > 0 && o.total_vote_amount > 0);
+          if (winner) {
+            this.addLog(`Prediction RESOLVED — Winner: "${winner.title}"`, "log-resolved");
+          } else {
+            this.addLog("Prediction RESOLVED", "log-resolved");
+          }
+        } else if (pred.state === "CANCELLED") {
+          this.addLog("Prediction CANCELLED — all points refunded", "log-cancelled");
+        } else {
+          this.addLog(`Prediction closed (${pred.state})`, "log-cancelled");
+        }
+      }
+
+      detectChanges(prev, current, state) {
+        const prevMap = {};
+        prev.forEach(o => { prevMap[o.id] = o; });
+
+        for (const outcome of current) {
+          const old = prevMap[outcome.id];
+          if (!old) continue;
+
+          const pointsDelta = outcome.total_vote_amount - old.total_vote_amount;
+          const votesDelta = outcome.vote_count - old.vote_count;
+
+          if (pointsDelta <= 0 && votesDelta <= 0) continue;
+
+          if (pointsDelta >= WHALE_THRESHOLD) {
+            const avg = votesDelta > 0 ? Math.round(pointsDelta / votesDelta) : pointsDelta;
+            this.addLog(
+              `🐋 WHALE DETECTED on "${outcome.title}" — +${this.formatNum(pointsDelta)} points` +
+              (votesDelta === 1 ? ` (single vote!)` : ` (~${this.formatNum(avg)}/vote, ${votesDelta} votes)`),
+              "log-whale"
+            );
+            this.flashWhale();
+          } else if (pointsDelta > 0) {
+            this.addLog(
+              `Vote on "${outcome.title}": +${this.formatNum(pointsDelta)} points (+${votesDelta} vote${votesDelta !== 1 ? "s" : ""})`,
+              "log-vote"
+            );
+          }
+        }
+      }
+
+      flashWhale() {
+        this.predCard.classList.remove("whale-alert");
+        void this.predCard.offsetWidth;
+        this.predCard.classList.add("whale-alert");
+      }
+
+      storeOutcomeSnapshot(outcomes) {
+        this.prevOutcomes = outcomes.map(o => ({ ...o }));
+      }
+
+      renderPrediction() {
+        const pred = this.prediction;
+        if (!pred) return;
+
+        this.predTitle.textContent = pred.title;
+
+        this.predState.textContent = pred.state;
+        this.predState.className = "pred-state " + pred.state;
+
+        const totalPoints = pred.outcomes.reduce((s, o) => s + o.total_vote_amount, 0);
+        const totalVoteCount = pred.outcomes.reduce((s, o) => s + o.vote_count, 0);
+
+        this.predTotalVoters.textContent = totalVoteCount + " voter" + (totalVoteCount !== 1 ? "s" : "");
+        this.predTotalPoints.textContent = this.formatNum(totalPoints) + " points";
+        this.totalPool.textContent = this.formatNum(totalPoints);
+        this.totalVotes.textContent = totalVoteCount;
+
+        this.outcomesContainer.innerHTML = "";
+
+        const isResolved = pred.state === "RESOLVED";
+
+        pred.outcomes.forEach((o, i) => {
+          const pct = totalPoints > 0 ? (o.total_vote_amount / totalPoints) * 100 : 0;
+          const color = OUTCOME_COLORS[i % OUTCOME_COLORS.length];
+          const isWinner = isResolved && o.return_rate > 0 && o.total_vote_amount > 0;
+
+          const el = document.createElement("div");
+          el.className = "outcome" + (isWinner ? " winner" : "");
+
+          el.innerHTML = `
+            <div class="outcome-bar" style="width:${pct}%;background:${color}"></div>
+            <div class="outcome-content">
+              <div class="outcome-left">
+                <div class="outcome-color" style="background:${color}"></div>
+                <div class="outcome-name">${this.escapeHTML(o.title)}${isWinner ? " ✓" : ""}</div>
+              </div>
+              <div class="outcome-right">
+                <div class="outcome-stat">
+                  <div class="value">${this.formatNum(o.total_vote_amount)}</div>
+                  <div class="label">Points</div>
+                </div>
+                <div class="outcome-stat">
+                  <div class="value">${o.vote_count}</div>
+                  <div class="label">Votes</div>
+                </div>
+                <div class="outcome-pct" style="color:${color}">${pct.toFixed(1)}%</div>
+              </div>
+            </div>
+          `;
+
+          this.outcomesContainer.appendChild(el);
+        });
+      }
+
+      startTimer(durationSec, createdAt) {
+        this.stopTimer();
+        const created = new Date(createdAt).getTime();
+        this.timerEnd = created + durationSec * 1000;
+
+        const tick = () => {
+          const remaining = Math.max(0, this.timerEnd - Date.now());
+          const sec = Math.ceil(remaining / 1000);
+          const m = Math.floor(sec / 60);
+          const s = sec % 60;
+          this.predTimer.textContent = `${m}:${String(s).padStart(2, "0")}`;
+          if (remaining <= 0) {
+            this.predTimer.textContent = "0:00";
+            this.stopTimer();
+          }
+        };
+
+        tick();
+        this.timerInterval = setInterval(tick, 500);
+      }
+
+      stopTimer() {
+        if (this.timerInterval) {
+          clearInterval(this.timerInterval);
+          this.timerInterval = null;
+        }
+      }
+
+      addLog(msg, cls) {
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+
+        const time = new Date().toLocaleTimeString();
+        entry.innerHTML = `
+          <span class="log-time">${time}</span>
+          <span class="log-msg ${cls || ""}">${this.escapeHTML(msg)}</span>
+        `;
+
+        this.logContainer.prepend(entry);
+
+        while (this.logContainer.children.length > 200) {
+          this.logContainer.lastChild.remove();
+        }
+      }
+
+      formatNum(n) {
+        if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
+        if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
+        return String(n);
+      }
+
+      escapeHTML(str) {
+        return String(str)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      // For testing
+      simulateCreated() {
+        this.onCreated({
+          id: "test-" + Date.now(),
+          channel_id: this.channelId,
+          title: "Will the streamer win this round?",
+          state: "ACTIVE",
+          outcomes: [
+            { id: "o1", title: "Yes, easy win", total_vote_amount: 0, vote_count: 0, return_rate: 0, top_users: [] },
+            { id: "o2", title: "No way", total_vote_amount: 0, vote_count: 0, return_rate: 0, top_users: [] }
+          ],
+          duration: 120,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      }
+
+      simulateVote() {
+        if (!this.prediction) { this.simulateCreated(); return; }
+        const pred = JSON.parse(JSON.stringify(this.prediction));
+        const idx = Math.floor(Math.random() * pred.outcomes.length);
+        const pts = Math.floor(Math.random() * 5000) + 100;
+        pred.outcomes[idx].total_vote_amount += pts;
+        pred.outcomes[idx].vote_count += 1;
+        pred.updated_at = new Date().toISOString();
+        this.onUpdated(pred);
+      }
+
+      simulateWhale() {
+        if (!this.prediction) { this.simulateCreated(); return; }
+        const pred = JSON.parse(JSON.stringify(this.prediction));
+        const idx = Math.floor(Math.random() * pred.outcomes.length);
+        const pts = Math.floor(Math.random() * 90000) + 10000;
+        pred.outcomes[idx].total_vote_amount += pts;
+        pred.outcomes[idx].vote_count += 1;
+        pred.updated_at = new Date().toISOString();
+        this.onUpdated(pred);
+      }
+
+      simulateClose() {
+        if (!this.prediction) return;
+        const pred = JSON.parse(JSON.stringify(this.prediction));
+        pred.state = "RESOLVED";
+        const maxIdx = pred.outcomes.reduce((best, o, i, arr) =>
+          o.total_vote_amount > arr[best].total_vote_amount ? i : best, 0);
+        pred.outcomes[maxIdx].return_rate = 1.5;
+        pred.updated_at = new Date().toISOString();
+        this.onClosed(pred);
+      }
+    }
+
+    // ---- Boot ----
+    const params = new URLSearchParams(window.location.search);
+    const channelId = params.get("channel") || "87788191";
+    const debug = params.get("debug") === "true";
+
+    const monitor = new PredictionMonitor({ channelId, debug });
+
+    if (debug) {
+      document.getElementById("test-controls").classList.add("show");
+      document.getElementById("btn-create").addEventListener("click", () => monitor.simulateCreated());
+      document.getElementById("btn-vote").addEventListener("click", () => monitor.simulateVote());
+      document.getElementById("btn-whale").addEventListener("click", () => monitor.simulateWhale());
+      document.getElementById("btn-close").addEventListener("click", () => monitor.simulateClose());
+    }
+
+    monitor.start();
+  </script>
+</body>
+
+</html>
