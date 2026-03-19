@@ -474,6 +474,108 @@
       }
     }
 
+    class AudioSocketPlayer {
+      constructor({ wsUrl, debug }) {
+        this.wsUrl = wsUrl;
+        this.debug = debug;
+        this.ws = null;
+        this.reconnectAttempts = 0;
+        this.maxReconnectDelay = 30000;
+        this.audioQueue = [];
+        this.playing = false;
+      }
+
+      start() {
+        if (!this.wsUrl) return;
+        this.connect();
+      }
+
+      connect() {
+        const attempt = () => {
+          const ws = new WebSocket(this.wsUrl);
+          this.ws = ws;
+
+          ws.onerror = (e) => console.error("[AudioWS] error:", e);
+
+          ws.onclose = () => {
+            console.log("[AudioWS] disconnected, reconnecting…");
+            const delay = Math.min(
+              1000 * Math.pow(2, this.reconnectAttempts),
+              this.maxReconnectDelay
+            );
+            this.reconnectAttempts++;
+            setTimeout(attempt, delay);
+          };
+
+          ws.onopen = () => {
+            this.reconnectAttempts = 0;
+            console.log("[AudioWS] connected to", this.wsUrl);
+          };
+
+          ws.onmessage = (event) => this.onMessage(event.data);
+        };
+
+        attempt();
+      }
+
+      onMessage(raw) {
+        let url;
+        try {
+          const parsed = JSON.parse(raw);
+          url = parsed.url || parsed.audio_url || parsed.src;
+        } catch {
+          url = raw.trim();
+        }
+
+        if (!url || typeof url !== "string") {
+          console.warn("[AudioWS] no valid URL in message:", raw);
+          return;
+        }
+
+        console.log("[AudioWS] queued:", url);
+        this.audioQueue.push(url);
+        this.drain();
+      }
+
+      drain() {
+        if (this.playing) return;
+        const url = this.audioQueue.shift();
+        if (!url) return;
+        this.playAudio(url);
+      }
+
+      playAudio(url) {
+        this.playing = true;
+        const audio = new Audio();
+        audio.crossOrigin = "anonymous";
+        audio.preload = "auto";
+
+        audio.addEventListener("canplaythrough", () => {
+          console.log("[AudioWS] playing:", url, "duration:", audio.duration);
+          audio.play().catch((err) => {
+            console.error("[AudioWS] play() rejected:", err);
+            this.playing = false;
+            this.drain();
+          });
+        }, { once: true });
+
+        audio.addEventListener("ended", () => {
+          console.log("[AudioWS] ended:", url);
+          this.playing = false;
+          this.drain();
+        });
+
+        audio.addEventListener("error", (e) => {
+          console.error("[AudioWS] load error:", url, audio.error);
+          this.playing = false;
+          this.drain();
+        });
+
+        audio.src = url;
+        audio.load();
+      }
+    }
+
     // ---- Boot ----
     const urlParams = new URLParams();
     const user = urlParams.getParam("user");
@@ -489,6 +591,15 @@
       queue,
       debug,
     });
+
+    // Audio WebSocket player
+    let audioWsUrl = urlParams.getParam("audio_ws");
+    // If audio_ws is not set, use the default audio_ws url
+    if (!audioWsUrl) {
+      audioWsUrl = "wss://submit-sound.aimar.id/ws";
+    }
+    const audioPlayer = new AudioSocketPlayer({ wsUrl: audioWsUrl, debug });
+    audioPlayer.start();
 
     // Show test button only when debug=true (you can change this if you want always visible)
     const controls = document.getElementById("test-controls");
