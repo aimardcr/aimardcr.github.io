@@ -209,6 +209,39 @@
     .hidden {
       display: none !important;
     }
+
+    /* Image overlay */
+    .ws-image-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 300ms ease;
+    }
+
+    .ws-image-overlay.show {
+      opacity: 1;
+    }
+
+    .ws-image-overlay.hide {
+      opacity: 0;
+      transition: opacity 400ms ease;
+    }
+
+    .ws-image-overlay img {
+      max-width: 90vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
   </style>
 </head>
 
@@ -474,7 +507,7 @@
       }
     }
 
-    class AudioSocketPlayer {
+    class MediaSocketPlayer {
       constructor({ wsUrl, debug }) {
         this.wsUrl = wsUrl;
         this.debug = debug;
@@ -482,7 +515,9 @@
         this.reconnectAttempts = 0;
         this.maxReconnectDelay = 30000;
         this.audioQueue = [];
-        this.playing = false;
+        this.audioPlaying = false;
+        this.imageQueue = [];
+        this.imageShowing = false;
       }
 
       start() {
@@ -495,10 +530,10 @@
           const ws = new WebSocket(this.wsUrl);
           this.ws = ws;
 
-          ws.onerror = (e) => console.error("[AudioWS] error:", e);
+          ws.onerror = (e) => console.error("[MediaWS] error:", e);
 
           ws.onclose = () => {
-            console.log("[AudioWS] disconnected, reconnecting…");
+            console.log("[MediaWS] disconnected, reconnecting…");
             const delay = Math.min(
               1000 * Math.pow(2, this.reconnectAttempts),
               this.maxReconnectDelay
@@ -509,7 +544,7 @@
 
           ws.onopen = () => {
             this.reconnectAttempts = 0;
-            console.log("[AudioWS] connected to", this.wsUrl);
+            console.log("[MediaWS] connected to", this.wsUrl);
           };
 
           ws.onmessage = (event) => this.onMessage(event.data);
@@ -519,60 +554,114 @@
       }
 
       onMessage(raw) {
-        let url;
+        let msg;
         try {
-          const parsed = JSON.parse(raw);
-          url = parsed.url || parsed.audio_url || parsed.src;
+          msg = JSON.parse(raw);
         } catch {
-          url = raw.trim();
+          msg = { type: "audio", url: raw.trim() };
         }
 
+        const type = msg.type || "audio";
+        const url = msg.url || msg.audio_url || msg.src;
+
         if (!url || typeof url !== "string") {
-          console.warn("[AudioWS] no valid URL in message:", raw);
+          console.warn("[MediaWS] no valid URL in message:", raw);
           return;
         }
 
-        console.log("[AudioWS] queued:", url);
-        this.audioQueue.push(url);
-        this.drain();
+        if (type === "image") {
+          const opacity = Math.min(1, Math.max(0, parseFloat(msg.opacity ?? 1)));
+          const duration = Math.max(500, parseInt(msg.duration ?? 5000, 10));
+          console.log("[MediaWS] image queued:", url, "opacity:", opacity, "duration:", duration);
+          this.imageQueue.push({ url, opacity, duration });
+          this.drainImages();
+        } else {
+          console.log("[MediaWS] audio queued:", url);
+          this.audioQueue.push(url);
+          this.drainAudio();
+        }
       }
 
-      drain() {
-        if (this.playing) return;
+      // ---- Audio ----
+      drainAudio() {
+        if (this.audioPlaying) return;
         const url = this.audioQueue.shift();
         if (!url) return;
         this.playAudio(url);
       }
 
       playAudio(url) {
-        this.playing = true;
+        this.audioPlaying = true;
         const audio = new Audio();
         audio.crossOrigin = "anonymous";
         audio.preload = "auto";
 
         audio.addEventListener("canplaythrough", () => {
-          console.log("[AudioWS] playing:", url, "duration:", audio.duration);
+          console.log("[MediaWS] playing audio:", url, "duration:", audio.duration);
           audio.play().catch((err) => {
-            console.error("[AudioWS] play() rejected:", err);
-            this.playing = false;
-            this.drain();
+            console.error("[MediaWS] play() rejected:", err);
+            this.audioPlaying = false;
+            this.drainAudio();
           });
         }, { once: true });
 
         audio.addEventListener("ended", () => {
-          console.log("[AudioWS] ended:", url);
-          this.playing = false;
-          this.drain();
+          console.log("[MediaWS] audio ended:", url);
+          this.audioPlaying = false;
+          this.drainAudio();
         });
 
         audio.addEventListener("error", (e) => {
-          console.error("[AudioWS] load error:", url, audio.error);
-          this.playing = false;
-          this.drain();
+          console.error("[MediaWS] audio load error:", url, audio.error);
+          this.audioPlaying = false;
+          this.drainAudio();
         });
 
         audio.src = url;
         audio.load();
+      }
+
+      // ---- Image ----
+      drainImages() {
+        if (this.imageShowing) return;
+        const item = this.imageQueue.shift();
+        if (!item) return;
+        this.showImage(item);
+      }
+
+      showImage({ url, opacity, duration }) {
+        this.imageShowing = true;
+
+        const overlay = document.createElement("div");
+        overlay.className = "ws-image-overlay";
+        overlay.style.setProperty("opacity", "0");
+
+        const img = document.createElement("img");
+        img.crossOrigin = "anonymous";
+        img.src = url;
+        img.style.opacity = opacity;
+
+        img.addEventListener("error", () => {
+          console.error("[MediaWS] image load error:", url);
+          overlay.remove();
+          this.imageShowing = false;
+          this.drainImages();
+        });
+
+        overlay.appendChild(img);
+        document.body.appendChild(overlay);
+
+        requestAnimationFrame(() => overlay.classList.add("show"));
+
+        setTimeout(() => {
+          overlay.classList.remove("show");
+          overlay.classList.add("hide");
+          setTimeout(() => {
+            overlay.remove();
+            this.imageShowing = false;
+            this.drainImages();
+          }, 420);
+        }, duration);
       }
     }
 
@@ -592,14 +681,13 @@
       debug,
     });
 
-    // Audio WebSocket player
-    let audioWsUrl = urlParams.getParam("audio_ws");
-    // If audio_ws is not set, use the default audio_ws url
-    if (!audioWsUrl) {
-      audioWsUrl = "wss://submit-sound.aimar.id/ws";
+    // Media WebSocket player (audio + image)
+    let mediaWsUrl = urlParams.getParam("audio_ws");
+    if (!mediaWsUrl) {
+      mediaWsUrl = "wss://submit-sound.aimar.id/ws";
     }
-    const audioPlayer = new AudioSocketPlayer({ wsUrl: audioWsUrl, debug });
-    audioPlayer.start();
+    const mediaPlayer = new MediaSocketPlayer({ wsUrl: mediaWsUrl, debug });
+    mediaPlayer.start();
 
     // Show test button only when debug=true (you can change this if you want always visible)
     const controls = document.getElementById("test-controls");
